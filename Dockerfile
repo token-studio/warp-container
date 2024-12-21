@@ -12,3 +12,5 @@ RUN apt-get update && \
     apt-get install --assume-yes cloudflare-warp && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT [ "warp-cli" ]

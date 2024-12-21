@@ -1,0 +1,72 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 0 * * 5"
+
+env:
+  MIRROR_PREFIX: https://cloudflaremirrors.com
+  BOOTSTRAP_ARCHIVE_NAME: archlinux-bootstrap-x86_64.tar.zst
+  BOOTSTRAP_ARCHIVE_PREFIX: archlinux-bootstrap-x86_64
+  BOOTSTRAP_ARCHIVE_SUFIX: tar.zst
+  BOOTSTRAP_ARCHIVE_SIGNATURE_NAME: archlinux-bootstrap-x86_64.tar.zst.sig
+  BOOTSTRAP_DIR: root.x86_64/
+  PACKAGE_LIST_FILE: packages.yaml
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: build
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 0 * * 5"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  fetch:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ghcr.io/${{ github.repository }}/warp-container:$(date --utc +%Y%m%d%H%M%S)
