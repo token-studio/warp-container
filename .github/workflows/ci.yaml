@@ -15,7 +15,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  fetch:
+  build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
@@ -27,8 +27,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::date --utc +%Y%m%d%H%M%S"
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}/warp-container:$(date --utc +%Y%m%d%H%M%S)
+          tags: ghcr.io/${{ github.repository }}/warp-container:${{ steps.date.outputs.date }}
